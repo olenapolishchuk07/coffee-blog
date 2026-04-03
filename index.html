@@ -1,214 +1,658 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coffee & Code | Блог</title>
-    <style>
-        /* Тепла "кавова" палітра */
-        :root {
-            --bg-color: #F5EFEB;
-            --card-bg: #FFFFFF;
-            --text-main: #3E2723;
-            --text-light: #795548;
-            --accent: #D7CCC8;
-            --btn-color: #8D6E63;
-            --btn-hover: #6D4C41;
-            --danger: #E57373;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Смачні Нотатки</title>
+  <style>
+    /* ── Reset & Base ─────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    :root {
+      /* Тепла "кулінарна" палітра */
+      --bg:         #fdfbf7; 
+      --surface:    #ffffff;
+      --border:     #ede8e1;
+      --border-md:  #dfd7cd;
+      --text:       #2c1e16; 
+      --text-muted: #756357;
+      --text-hint:  #a89c94;
+      --accent:     #e07a5f; 
+      --accent-hover:#c96348;
+      --radius:     12px;
+      --radius-lg:  16px;
+      --shadow:     0 4px 12px rgba(44, 30, 22, 0.05), 0 8px 24px rgba(44, 30, 22, 0.03);
 
-        body { background-color: var(--bg-color); color: var(--text-main); padding: 2rem; }
+      /* Category colors */
+      --recipes-bg:     #fff1e6; --recipes-text:     #b85b24;
+      --ingredients-bg: #eaf2ea; --ingredients-text: #3a7d44;
+      --places-bg:      #fceee9; --places-text:      #b54a54;
+      --other-bg:       #f2f0ec; --other-text:       #5c5750;
+    }
 
-        .container { max-width: 800px; margin: 0 auto; }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
 
-        header { text-align: center; margin-bottom: 2rem; }
-        header h1 { font-size: 2.5rem; color: var(--btn-hover); }
+    /* ── Header ──────────────────────────────────── */
+    .header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+    }
+    .header__inner {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .header__logo {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: -0.02em;
+    }
 
-        /* Форма створення поста */
-        .post-form {
-            background: var(--card-bg);
-            padding: 1.5rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(62, 39, 35, 0.1);
-            margin-bottom: 2rem;
-            border-top: 5px solid var(--btn-color);
-        }
+    /* ── Buttons ─────────────────────────────────── */
+    .btn {
+      cursor: pointer;
+      padding: 8px 18px;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: var(--radius);
+      border: 1px solid var(--border-md);
+      background: transparent;
+      color: var(--text);
+      font-family: inherit;
+      transition: all .2s ease;
+    }
+    .btn:hover  { background: #f7f4ef; }
+    .btn:active { transform: scale(0.96); }
 
-        input, textarea {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 1rem;
-            border: 1px solid var(--accent);
-            border-radius: 6px;
-            font-size: 1rem;
-            outline: none;
-        }
+    .btn--primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+      box-shadow: 0 4px 10px rgba(224, 122, 95, 0.3);
+    }
+    .btn--primary:hover   { background: var(--accent-hover); border-color: var(--accent-hover); }
+    .btn--danger {
+      color: #d9534f;
+      border-color: #fbdada;
+    }
+    .btn--danger:hover { background: #fff0f0; }
 
-        input:focus, textarea:focus { border-color: var(--btn-color); }
-        textarea { resize: vertical; min-height: 100px; }
+    /* ── Main layout ─────────────────────────────── */
+    .main {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 2rem 1.25rem 4rem;
+    }
 
-        button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: 0.3s;
-        }
+    /* ── Editor ──────────────────────────────────── */
+    .editor { margin-bottom: 2rem; animation: slideDown .3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .editor__card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.8rem;
+      box-shadow: var(--shadow);
+    }
+    .editor__title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 1.2rem;
+      color: var(--accent);
+    }
+    .editor__actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 1.5rem;
+    }
 
-        .btn-submit { background-color: var(--btn-color); color: white; width: 100%; font-size: 1.1rem; }
-        .btn-submit:hover { background-color: var(--btn-hover); }
+    /* ── Fields ──────────────────────────────────── */
+    .field { margin-bottom: 1.1rem; }
+    .field__label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+    .field__hint { font-weight: 400; text-transform: none; letter-spacing: 0; color: var(--text-hint); }
+    .field__input {
+      width: 100%;
+      padding: 10px 14px;
+      font-size: 15px;
+      font-family: inherit;
+      color: var(--text);
+      background: var(--bg);
+      border: 1px solid var(--border-md);
+      border-radius: var(--radius);
+      transition: all .2s;
+      resize: vertical;
+    }
+    .field__input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(224, 122, 95, 0.15);
+      background: var(--surface);
+    }
+    textarea.field__input { min-height: 140px; line-height: 1.7; }
 
-        /* Список постів */
-        .post-card {
-            background: var(--card-bg);
-            padding: 1.5rem;
-            border-radius: 12px;
-            box-shadow: 0 2px 4px rgba(62, 39, 35, 0.05);
-            margin-bottom: 1rem;
-            transition: 0.3s;
-        }
-        .post-card:hover { transform: translateY(-3px); box-shadow: 0 6px 12px rgba(62, 39, 35, 0.1); }
+    /* ── Tag input ───────────────────────────────── */
+    .tag-input {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      border: 1px solid var(--border-md);
+      border-radius: var(--radius);
+      padding: 8px 12px;
+      background: var(--bg);
+      cursor: text;
+      transition: all .2s;
+    }
+    .tag-input:focus-within { border-color: var(--accent); background: var(--surface); }
+    .tag-input__box {
+      border: none;
+      outline: none;
+      font-size: 14px;
+      font-family: inherit;
+      background: transparent;
+      color: var(--text);
+      flex: 1;
+      min-width: 120px;
+    }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 13px;
+      padding: 3px 10px 3px 12px;
+      border-radius: 99px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .tag__remove {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-hint);
+      font-size: 16px;
+      line-height: 1;
+      padding: 0;
+      transition: color .2s;
+    }
+    .tag__remove:hover { color: #d9534f; }
 
-        .post-title { font-size: 1.4rem; margin-bottom: 0.5rem; }
-        .post-date { font-size: 0.85rem; color: var(--text-light); margin-bottom: 1rem; }
-        .post-content { line-height: 1.6; margin-bottom: 1.5rem; white-space: pre-wrap; }
+    /* ── Toolbar ─────────────────────────────────── */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .filters { display: flex; gap: 8px; flex-wrap: wrap; }
+    .filter {
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 6px 16px;
+      border-radius: 99px;
+      border: 1px solid var(--border-md);
+      background: var(--surface);
+      color: var(--text-muted);
+      font-family: inherit;
+      transition: all .2s;
+    }
+    .filter:hover  { border-color: var(--accent); color: var(--accent); }
+    .filter.active { background: var(--accent); color: #fff; border-color: var(--accent); }
 
-        .post-actions { display: flex; gap: 10px; justify-content: flex-end; }
-        .btn-edit { background-color: var(--accent); color: var(--text-main); }
-        .btn-delete { background-color: transparent; border: 1px solid var(--danger); color: var(--danger); }
-        
-        .btn-edit:hover { background-color: #BCAAA4; }
-        .btn-delete:hover { background-color: var(--danger); color: white; }
-    </style>
+    .search {
+      padding: 8px 16px;
+      font-size: 14px;
+      font-family: inherit;
+      border: 1px solid var(--border-md);
+      border-radius: 99px;
+      background: var(--surface);
+      color: var(--text);
+      width: 220px;
+      transition: all .2s;
+    }
+    .search:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(224, 122, 95, 0.1);
+    }
+
+    /* ── Posts ───────────────────────────────────── */
+    .posts { display: flex; flex-direction: column; gap: 16px; }
+
+    .post {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      cursor: pointer;
+      transition: all .3s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+    .post:hover    { border-color: var(--accent); box-shadow: var(--shadow); transform: translateY(-2px); }
+    .post.expanded { border-color: var(--accent); cursor: default; }
+
+    .post__meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .post__cat {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 99px;
+      letter-spacing: .02em;
+    }
+    .cat--recipes     { background: var(--recipes-bg);     color: var(--recipes-text); }
+    .cat--ingredients { background: var(--ingredients-bg); color: var(--ingredients-text); }
+    .cat--places      { background: var(--places-bg);      color: var(--places-text); }
+    .cat--other       { background: var(--other-bg);       color: var(--other-text); }
+
+    .post__reading { font-size: 13px; color: var(--text-hint); }
+    .post__date    { font-size: 13px; color: var(--text-hint); margin-left: auto; }
+
+    .post__title {
+      font-size: 19px;
+      font-weight: 700;
+      line-height: 1.3;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+    .post__excerpt {
+      font-size: 15px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+    .post__body {
+      font-size: 16px;
+      color: var(--text-muted);
+      line-height: 1.8;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px dashed var(--border-md);
+      white-space: pre-wrap;
+    }
+    .post__tags {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+    .post__actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+    .post__hint { font-size: 13px; font-weight: 500; color: var(--accent); flex: 1; cursor: pointer; }
+
+    /* ── Empty state ─────────────────────────────── */
+    .empty {
+      text-align: center;
+      padding: 5rem 1rem;
+      color: var(--text-muted);
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      border: 1px dashed var(--border-md);
+    }
+    .empty__icon { font-size: 3rem; margin-bottom: 15px; opacity: 0.8; }
+    .empty h3    { font-size: 1.2rem; font-weight: 600; margin-bottom: 8px; }
+    .empty p     { font-size: 15px; color: var(--text-hint); }
+  </style>
 </head>
 <body>
 
-    <div class="container">
-        <header>
-            <h1>☕ Coffee & Code</h1>
-            <p>Простий CRUD блог на Vanilla JS</p>
-        </header>
+  <header class="header">
+    <div class="header__inner">
+      <h1 class="header__logo">🍲 Смачні Нотатки</h1>
+      <button class="btn btn--primary" id="newPostBtn">+ Додати рецепт</button>
+    </div>
+  </header>
 
-        <section class="post-form">
-            <h2 id="formTitle" style="margin-bottom: 1rem;">Новий запис</h2>
-            <input type="hidden" id="postId">
-            <input type="text" id="postTitle" placeholder="Заголовок..." required>
-            <textarea id="postContent" placeholder="Що цікавого розкажеш?" required></textarea>
-            <button class="btn-submit" id="submitBtn" onclick="savePost()">Опублікувати</button>
-        </section>
+  <main class="main">
 
-        <section id="postsContainer"></section>
+    <div class="editor" id="editor" style="display:none;">
+      <div class="editor__card">
+        <h2 class="editor__title" id="editorTitle">Новий запис</h2>
+
+        <div class="field">
+          <label class="field__label" for="eTitle">Назва страви / Заголовок</label>
+          <input class="field__input" id="eTitle" type="text" placeholder="Що готуємо сьогодні?..." />
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="eCat">Категорія</label>
+          <select class="field__input" id="eCat">
+            <option value="recipes">🍳 Рецепти</option>
+            <option value="ingredients">🌿 Інгредієнти</option>
+            <option value="places">🍽️ Кав'ярні та Заклади</option>
+            <option value="other">📝 Інше</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="eBody">Опис / Рецепт</label>
+          <textarea class="field__input" id="eBody" rows="6" placeholder="Опишіть процес приготування або ваші враження..."></textarea>
+        </div>
+
+        <div class="field">
+          <label class="field__label">Теги <span class="field__hint">(натисніть Enter щоб додати)</span></label>
+          <div class="tag-input" id="tagInput">
+            <input class="tag-input__box" id="tagBox" type="text" placeholder="додати інгредієнт..." />
+          </div>
+        </div>
+
+        <div class="editor__actions">
+          <button class="btn" id="cancelBtn">Скасувати</button>
+          <button class="btn btn--primary" id="saveBtn">Опублікувати</button>
+        </div>
+      </div>
     </div>
 
-    <script>
-        // Ініціалізація даних з LocalStorage
-        let posts = JSON.parse(localStorage.getItem('coffeePosts')) || [];
+    <div class="toolbar">
+      <div class="filters" id="filters">
+        <button class="filter active" data-cat="all">Всі записи</button>
+        <button class="filter" data-cat="recipes">Рецепти</button>
+        <button class="filter" data-cat="ingredients">Інгредієнти</button>
+        <button class="filter" data-cat="places">Заклади</button>
+        <button class="filter" data-cat="other">Інше</button>
+      </div>
+      <input class="search" id="searchBox" type="text" placeholder="🔎 Знайти рецепт..." />
+    </div>
 
-        // Відображення постів
-        function renderPosts() {
-            const container = document.getElementById('postsContainer');
-            container.innerHTML = '';
+    <div id="postsContainer"></div>
 
-            if (posts.length === 0) {
-                container.innerHTML = '<p style="text-align:center; color: #795548;">Поки що немає записів. Створи перший!</p>';
-                return;
-            }
+  </main>
 
-            // Показуємо найновіші зверху
-            const reversedPosts = [...posts].reverse();
+  <script>
+    // ── Data ─────────────────────────────────────────────────────────────────────
+    const CATS = {
+      recipes:     { label: '🍳 Рецепти',      cls: 'cat--recipes'     },
+      ingredients: { label: '🌿 Інгредієнти',  cls: 'cat--ingredients' },
+      places:      { label: '🍽️ Заклади',      cls: 'cat--places'      },
+      other:       { label: '📝 Інше',         cls: 'cat--other'       },
+    };
 
-            reversedPosts.forEach(post => {
-                const card = document.createElement('div');
-                card.className = 'post-card';
-                card.innerHTML = `
-                    <h3 class="post-title">${post.title}</h3>
-                    <div class="post-date">${post.date}</div>
-                    <div class="post-content">${post.content}</div>
-                    <div class="post-actions">
-                        <button class="btn-edit" onclick="editPost(${post.id})">Редагувати</button>
-                        <button class="btn-delete" onclick="deletePost(${post.id})">Видалити</button>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-        }
+    let posts = loadPosts() || [
+      {
+        id: 1,
+        title: 'Мій улюблений гратен з куркою 🥘',
+        body: 'Сьогодні готувала свій фірмовий картопляний гратен. Головний секрет — це правильно підібрані спеції!\n\nЯ завжди додаю трохи паприки, розмарину та обов\'язково куркуму для гарного золотистого кольору. Картопля виходить неймовірно ніжною, а курочка просто тане в роті. Раджу спробувати!',
+        category: 'recipes',
+        tags: ['картопля', 'курка', 'розмарин', 'паприка', 'куркума'],
+        date: '2026-03-18',
+      },
+      {
+        id: 2,
+        title: 'Будні баристи ☕',
+        body: 'Працювати за касою і готувати каву — це ціле мистецтво. Особливо, коли в закладі багато гостей і треба робити все швидко.\n\nАле усмішки клієнтів і аромат свіжозмеленої кави того варті! Найбільше люблю готувати капучино з ідеальною пінкою.',
+        category: 'places',
+        tags: ['кава', 'бариста', 'кав\'ярня'],
+        date: '2026-03-25',
+      },
+      {
+        id: 3,
+        title: 'Ласкаво просимо до Смачних Нотаток!',
+        body: 'Тут я буду збирати свої улюблені рецепти, ділитися враженнями від нових страв та закладів. Справжній кулінарний щоденник.\n\nПриєднуйтесь до моїх смачних експериментів!',
+        category: 'other',
+        tags: ['блог', 'кулінарія', 'старт'],
+        date: '2026-04-01',
+      },
+    ];
 
-        // Створення або оновлення поста (Create / Update)
-        function savePost() {
-            const titleInput = document.getElementById('postTitle');
-            const contentInput = document.getElementById('postContent');
-            const idInput = document.getElementById('postId');
+    let nextId     = Math.max(0, ...posts.map(p => p.id)) + 1;
+    let editingId  = null;
+    let editTags   = [];
+    let expandedId = null;
+    let currentFilter = 'all';
 
-            const title = titleInput.value.trim();
-            const content = contentInput.value.trim();
+    // ── Persistence ───────────────────────────────────────────────────────────────
+    function savePosts()  { localStorage.setItem('culinary_blog_posts', JSON.stringify(posts)); }
+    function loadPosts()  {
+      try { return JSON.parse(localStorage.getItem('culinary_blog_posts')); } catch { return null; }
+    }
 
-            if (!title || !content) {
-                alert('Будь ласка, заповніть всі поля!');
-                return;
-            }
+    // ── Helpers ───────────────────────────────────────────────────────────────────
+    function esc(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
 
-            const currentDate = new Date().toLocaleString('uk-UA', { 
-                day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' 
-            });
+    function formatDate(d) {
+      return new Date(d).toLocaleDateString('uk-UA', { day: 'numeric', month: 'long', year: 'numeric' });
+    }
 
-            if (idInput.value) {
-                // Update існуючого
-                const postIndex = posts.findIndex(p => p.id == idInput.value);
-                posts[postIndex].title = title;
-                posts[postIndex].content = content;
-                // Скидаємо форму
-                document.getElementById('formTitle').innerText = 'Новий запис';
-                document.getElementById('submitBtn').innerText = 'Опублікувати';
-            } else {
-                // Create нового
-                const newPost = {
-                    id: Date.now(),
-                    title: title,
-                    content: content,
-                    date: currentDate
-                };
-                posts.push(newPost);
-            }
+    function readingTime(text) {
+      const words = text.trim().split(/\s+/).length;
+      return Math.max(1, Math.round(words / 150)) + ' хв читання';
+    }
 
-            // Зберігаємо в LocalStorage і перемальовуємо
-            localStorage.setItem('coffeePosts', JSON.stringify(posts));
-            
-            titleInput.value = '';
-            contentInput.value = '';
-            idInput.value = '';
-            
-            renderPosts();
-        }
+    function today() {
+      return new Date().toISOString().split('T')[0];
+    }
 
-        // Видалення поста (Delete)
-        function deletePost(id) {
-            if (confirm('Ви впевнені, що хочете видалити цей запис?')) {
-                posts = posts.filter(post => post.id !== id);
-                localStorage.setItem('coffeePosts', JSON.stringify(posts));
-                renderPosts();
-            }
-        }
+    // ── Editor ────────────────────────────────────────────────────────────────────
+    function openEditor(id = null) {
+      editingId = id;
+      const post = id !== null ? posts.find(p => p.id === id) : null;
+      editTags = post ? [...post.tags] : [];
 
-        // Підготовка до редагування (Update)
-        function editPost(id) {
-            const post = posts.find(p => p.id === id);
-            
-            document.getElementById('postId').value = post.id;
-            document.getElementById('postTitle').value = post.title;
-            document.getElementById('postContent').value = post.content;
-            
-            document.getElementById('formTitle').innerText = 'Редагування запису';
-            document.getElementById('submitBtn').innerText = 'Зберегти зміни';
-            
-            // Скрол нагору до форми
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
+      document.getElementById('editorTitle').textContent = post ? '🖍 Редагувати запис' : 'Новий рецепт';
+      document.getElementById('eTitle').value            = post ? post.title : '';
+      document.getElementById('eCat').value              = post ? post.category : 'recipes';
+      document.getElementById('eBody').value             = post ? post.body : '';
+      document.getElementById('saveBtn').textContent     = post ? 'Зберегти зміни' : 'Опублікувати';
 
-        // Перший рендер при завантаженні
-        renderPosts();
-    </script>
+      renderTagInput();
+
+      document.getElementById('editor').style.display = 'block';
+      document.getElementById('newPostBtn').textContent = '✕ Закрити редактор';
+      document.getElementById('eTitle').focus();
+      document.getElementById('editor').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function closeEditor() {
+      document.getElementById('editor').style.display = 'none';
+      document.getElementById('newPostBtn').textContent = '+ Додати рецепт';
+      editingId = null;
+      editTags  = [];
+    }
+
+    function toggleEditor() {
+      const isOpen = document.getElementById('editor').style.display !== 'none';
+      isOpen ? closeEditor() : openEditor();
+    }
+
+    function renderTagInput() {
+      const container = document.getElementById('tagInput');
+      const tagsHTML  = editTags.map(t =>
+        `<span class="tag">${esc(t)}<button class="tag__remove" data-tag="${esc(t)}" title="Видалити тег">&times;</button></span>`
+      ).join('');
+      container.innerHTML = tagsHTML + `<input class="tag-input__box" id="tagBox" type="text" placeholder="додати тег..." />`;
+      document.getElementById('tagBox').addEventListener('keydown', handleTagKey);
+      container.querySelectorAll('.tag__remove').forEach(btn => {
+        btn.addEventListener('click', () => removeTag(btn.dataset.tag));
+      });
+    }
+
+    function handleTagKey(e) {
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+      const val = e.target.value.trim().toLowerCase();
+      if (val && !editTags.includes(val)) {
+        editTags.push(val);
+        renderTagInput();
+        document.getElementById('tagBox').focus();
+      } else {
+        e.target.value = '';
+      }
+    }
+
+    function removeTag(tag) {
+      editTags = editTags.filter(t => t !== tag);
+      renderTagInput();
+    }
+
+    // ── CRUD ──────────────────────────────────────────────────────────────────────
+    function savePost() {
+      const title = document.getElementById('eTitle').value.trim();
+      const body  = document.getElementById('eBody').value.trim();
+      const cat   = document.getElementById('eCat').value;
+
+      if (!title) { alert('Будь ласка, введіть назву!'); document.getElementById('eTitle').focus(); return; }
+      if (!body)  { alert('Будь ласка, напишіть текст!'); document.getElementById('eBody').focus(); return; }
+
+      if (editingId !== null) {
+        // UPDATE
+        const idx = posts.findIndex(p => p.id === editingId);
+        posts[idx] = { ...posts[idx], title, body, category: cat, tags: [...editTags] };
+      } else {
+        // CREATE
+        posts.unshift({ id: nextId++, title, body, category: cat, tags: [...editTags], date: today() });
+      }
+
+      savePosts();
+      closeEditor();
+      renderPosts();
+    }
+
+    function deletePost(id) {
+      if (!confirm('Ви впевнені, що хочете видалити цей запис? Цю дію не можна скасувати.')) return;
+      posts = posts.filter(p => p.id !== id);
+      if (expandedId === id) expandedId = null;
+      savePosts();
+      renderPosts();
+    }
+
+    function toggleExpand(id) {
+      expandedId = expandedId === id ? null : id;
+      renderPosts();
+    }
+
+    // ── Filters ───────────────────────────────────────────────────────────────────
+    function setFilter(cat) {
+      currentFilter = cat;
+      document.querySelectorAll('.filter').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.cat === cat);
+      });
+      renderPosts();
+    }
+
+    // ── Render ────────────────────────────────────────────────────────────────────
+    function renderPosts() {
+      const query = document.getElementById('searchBox').value.toLowerCase();
+
+      const filtered = posts.filter(p => {
+        if (currentFilter !== 'all' && p.category !== currentFilter) return false;
+        if (query && !p.title.toLowerCase().includes(query) && !p.body.toLowerCase().includes(query)) return false;
+        return true;
+      });
+
+      const container = document.getElementById('postsContainer');
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="empty">
+            <div class="empty__icon">🍽️</div>
+            <h3>Нічого не знайдено</h3>
+            <p>Спробуйте змінити фільтр або пошуковий запит</p>
+          </div>`;
+        return;
+      }
+
+      container.innerHTML = `<div class="posts">${filtered.map(renderPost).join('')}</div>`;
+
+      // Bind events after render
+      container.querySelectorAll('.post').forEach(card => {
+        const id = Number(card.dataset.id);
+        card.addEventListener('click', (e) => {
+          if (e.target.closest('button')) return; // don't expand on button clicks
+          toggleExpand(id);
+        });
+      });
+      container.querySelectorAll('.btn-edit').forEach(btn => {
+        btn.addEventListener('click', () => openEditor(Number(btn.dataset.id)));
+      });
+      container.querySelectorAll('.btn-delete').forEach(btn => {
+        btn.addEventListener('click', () => deletePost(Number(btn.dataset.id)));
+      });
+    }
+
+    function renderPost(p) {
+      const exp     = expandedId === p.id;
+      const cat     = CATS[p.category];
+      const excerpt = p.body.length > 140 ? p.body.slice(0, 140).trimEnd() + '…' : p.body;
+
+      const tagsHTML = p.tags.length
+        ? `<div class="post__tags">${p.tags.map(t => `<span class="tag">#${esc(t)}</span>`).join('')}</div>`
+        : '';
+
+      return `
+      <article class="post ${exp ? 'expanded' : ''}" data-id="${p.id}">
+        <div class="post__meta">
+          <span class="post__cat ${cat.cls}">${cat.label}</span>
+          <span class="post__reading">⏳ ${readingTime(p.body)}</span>
+          <span class="post__date">📅 ${formatDate(p.date)}</span>
+        </div>
+        <h2 class="post__title">${esc(p.title)}</h2>
+        <p class="post__excerpt">${exp ? '' : esc(excerpt)}</p>
+        ${exp ? `<div class="post__body">${esc(p.body)}</div>` : ''}
+        ${tagsHTML}
+        <div class="post__actions">
+          <span class="post__hint">${exp ? '⮝ Згорнути рецепт' : '⮟ Читати далі'}</span>
+          <button class="btn btn-edit" data-id="${p.id}">🖍 Редагувати</button>
+          <button class="btn btn--danger btn-delete" data-id="${p.id}">❌ Видалити</button>
+        </div>
+      </article>`;
+    }
+
+    // ── Init ──────────────────────────────────────────────────────────────────────
+    document.getElementById('newPostBtn').addEventListener('click', toggleEditor);
+    document.getElementById('cancelBtn').addEventListener('click', closeEditor);
+    document.getElementById('saveBtn').addEventListener('click', savePost);
+    document.getElementById('searchBox').addEventListener('input', renderPosts);
+
+    document.getElementById('filters').addEventListener('click', (e) => {
+      const btn = e.target.closest('.filter');
+      if (btn) setFilter(btn.dataset.cat);
+    });
+
+    renderPosts();
+  </script>
 </body>
 </html>
