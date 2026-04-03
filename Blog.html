@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coffee & Code | Блог</title>
+    <style>
+        /* Тепла "кавова" палітра */
+        :root {
+            --bg-color: #F5EFEB;
+            --card-bg: #FFFFFF;
+            --text-main: #3E2723;
+            --text-light: #795548;
+            --accent: #D7CCC8;
+            --btn-color: #8D6E63;
+            --btn-hover: #6D4C41;
+            --danger: #E57373;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+        body { background-color: var(--bg-color); color: var(--text-main); padding: 2rem; }
+
+        .container { max-width: 800px; margin: 0 auto; }
+
+        header { text-align: center; margin-bottom: 2rem; }
+        header h1 { font-size: 2.5rem; color: var(--btn-hover); }
+
+        /* Форма створення поста */
+        .post-form {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(62, 39, 35, 0.1);
+            margin-bottom: 2rem;
+            border-top: 5px solid var(--btn-color);
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 1rem;
+            border: 1px solid var(--accent);
+            border-radius: 6px;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        input:focus, textarea:focus { border-color: var(--btn-color); }
+        textarea { resize: vertical; min-height: 100px; }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .btn-submit { background-color: var(--btn-color); color: white; width: 100%; font-size: 1.1rem; }
+        .btn-submit:hover { background-color: var(--btn-hover); }
+
+        /* Список постів */
+        .post-card {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(62, 39, 35, 0.05);
+            margin-bottom: 1rem;
+            transition: 0.3s;
+        }
+        .post-card:hover { transform: translateY(-3px); box-shadow: 0 6px 12px rgba(62, 39, 35, 0.1); }
+
+        .post-title { font-size: 1.4rem; margin-bottom: 0.5rem; }
+        .post-date { font-size: 0.85rem; color: var(--text-light); margin-bottom: 1rem; }
+        .post-content { line-height: 1.6; margin-bottom: 1.5rem; white-space: pre-wrap; }
+
+        .post-actions { display: flex; gap: 10px; justify-content: flex-end; }
+        .btn-edit { background-color: var(--accent); color: var(--text-main); }
+        .btn-delete { background-color: transparent; border: 1px solid var(--danger); color: var(--danger); }
+        
+        .btn-edit:hover { background-color: #BCAAA4; }
+        .btn-delete:hover { background-color: var(--danger); color: white; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>☕ Coffee & Code</h1>
+            <p>Простий CRUD блог на Vanilla JS</p>
+        </header>
+
+        <section class="post-form">
+            <h2 id="formTitle" style="margin-bottom: 1rem;">Новий запис</h2>
+            <input type="hidden" id="postId">
+            <input type="text" id="postTitle" placeholder="Заголовок..." required>
+            <textarea id="postContent" placeholder="Що цікавого розкажеш?" required></textarea>
+            <button class="btn-submit" id="submitBtn" onclick="savePost()">Опублікувати</button>
+        </section>
+
+        <section id="postsContainer"></section>
+    </div>
+
+    <script>
+        // Ініціалізація даних з LocalStorage
+        let posts = JSON.parse(localStorage.getItem('coffeePosts')) || [];
+
+        // Відображення постів
+        function renderPosts() {
+            const container = document.getElementById('postsContainer');
+            container.innerHTML = '';
+
+            if (posts.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color: #795548;">Поки що немає записів. Створи перший!</p>';
+                return;
+            }
+
+            // Показуємо найновіші зверху
+            const reversedPosts = [...posts].reverse();
+
+            reversedPosts.forEach(post => {
+                const card = document.createElement('div');
+                card.className = 'post-card';
+                card.innerHTML = `
+                    <h3 class="post-title">${post.title}</h3>
+                    <div class="post-date">${post.date}</div>
+                    <div class="post-content">${post.content}</div>
+                    <div class="post-actions">
+                        <button class="btn-edit" onclick="editPost(${post.id})">Редагувати</button>
+                        <button class="btn-delete" onclick="deletePost(${post.id})">Видалити</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Створення або оновлення поста (Create / Update)
+        function savePost() {
+            const titleInput = document.getElementById('postTitle');
+            const contentInput = document.getElementById('postContent');
+            const idInput = document.getElementById('postId');
+
+            const title = titleInput.value.trim();
+            const content = contentInput.value.trim();
+
+            if (!title || !content) {
+                alert('Будь ласка, заповніть всі поля!');
+                return;
+            }
+
+            const currentDate = new Date().toLocaleString('uk-UA', { 
+                day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' 
+            });
+
+            if (idInput.value) {
+                // Update існуючого
+                const postIndex = posts.findIndex(p => p.id == idInput.value);
+                posts[postIndex].title = title;
+                posts[postIndex].content = content;
+                // Скидаємо форму
+                document.getElementById('formTitle').innerText = 'Новий запис';
+                document.getElementById('submitBtn').innerText = 'Опублікувати';
+            } else {
+                // Create нового
+                const newPost = {
+                    id: Date.now(),
+                    title: title,
+                    content: content,
+                    date: currentDate
+                };
+                posts.push(newPost);
+            }
+
+            // Зберігаємо в LocalStorage і перемальовуємо
+            localStorage.setItem('coffeePosts', JSON.stringify(posts));
+            
+            titleInput.value = '';
+            contentInput.value = '';
+            idInput.value = '';
+            
+            renderPosts();
+        }
+
+        // Видалення поста (Delete)
+        function deletePost(id) {
+            if (confirm('Ви впевнені, що хочете видалити цей запис?')) {
+                posts = posts.filter(post => post.id !== id);
+                localStorage.setItem('coffeePosts', JSON.stringify(posts));
+                renderPosts();
+            }
+        }
+
+        // Підготовка до редагування (Update)
+        function editPost(id) {
+            const post = posts.find(p => p.id === id);
+            
+            document.getElementById('postId').value = post.id;
+            document.getElementById('postTitle').value = post.title;
+            document.getElementById('postContent').value = post.content;
+            
+            document.getElementById('formTitle').innerText = 'Редагування запису';
+            document.getElementById('submitBtn').innerText = 'Зберегти зміни';
+            
+            // Скрол нагору до форми
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Перший рендер при завантаженні
+        renderPosts();
+    </script>
+</body>
+</html>
