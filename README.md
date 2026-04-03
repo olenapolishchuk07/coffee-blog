@@ -42,4 +42,4 @@
 
 1. Клонуйте цей репозиторій на свій комп'ютер:
    ```bash
-   git clone [https://github.com/olenapolishchuk07/coffee-blog.git](https://github.com/olenapolishchuk07/coffee-blog.git)
+   git clone https://github.com/olenapolishchuk07/coffee-blog.git
